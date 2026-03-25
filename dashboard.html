@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — ISIS AI Agent CRM</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <h1>ISIS AI Agent CRM</h1>
+                </div>
+                <div class="company-info">
+                    <div class="company-name" id="companyName">Carregando...</div>
+                    <div class="company-plan">
+                        <span class="plan-badge" id="companyPlan">Free</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">💬</span>
+                            <span>Leads</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            <span>Pipeline</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <span class="nav-icon">🚪</span>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="dashboard-title">
+                    <h2>Dashboard</h2>
+                    <p>Visão geral dos seus leads</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="loadLeads()" title="Atualizar">
+                        🔄
+                    </button>
+                    <span class="last-update" id="lastUpdateTime">Atualizado agora</span>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">Total de Leads</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔵</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="statNovos">0</div>
+                        <div class="stat-label">Novos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🟡</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="statAtendimento">0</div>
+                        <div class="stat-label">Em Atendimento</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="statConvertidos">0</div>
+                        <div class="stat-label">Convertidos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">
+                        📋 Todos
+                        <span class="filter-count" id="countAll">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="novo">
+                        🔵 Novos
+                        <span class="filter-count" id="countNovo">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="em_atendimento">
+                        🟡 Em Atendimento
+                        <span class="filter-count" id="countAtendimento">0</span>
+                    </button>
+                    <button class="filter-btn" data-filter="convertido">
+                        🟢 Convertidos
+                        <span class="filter-count" id="countConvertido">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leads Content -->
+            <div class="leads-content">
+                <!-- Leads List -->
+                <div class="leads-panel">
+                    <div class="panel-header">
+                        <h3>💬 Leads</h3>
+                        <span class="panel-count" id="leadsCount">0</span>
+                    </div>
+                    <div class="leads-list" id="leadsList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⏳</div>
+                            <div class="empty-state-title">Carregando leads...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Panel -->
+                <div class="detail-panel" id="detailPanel">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👆</div>
+                        <div class="empty-state-title">Selecione um lead</div>
+                        <div class="empty-state-text">
+                            Clique em um lead na lista para ver o histórico de mensagens e detalhes
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast Container -->
+            <div id="toastContainer" class="toast-container"></div>
+
+            <!-- Footer com Assinatura -->
+            <footer class="dashboard-footer">
+                <div class="footer-content">
+                    <p class="footer-text">© 2026 ISIS AI Agent CRM. Todos os direitos reservados.</p>
+                    <div class="footer-signature">
+                        <span class="footer-label">Desenvolvido por </span>
+                        <a href="https://wa.me/5562991444852" target="_blank" class="signature-link" title="Falar no WhatsApp">
+                            <span class="signature-icon">💼</span>
+                            <span class="signature-text">Souza Produções</span>
+                            <span class="signature-badge">WhatsApp</span>
+                        </a>
+                    </div>
+                    <div class="system-status">
+                        <span class="status-dot"></span>
+                        <span>Sistema online</span>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
