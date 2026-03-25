@@ -1,20 +1,16 @@
 // ============================================
-// CONFIGURAÇÃO DA API
+// ISIS AI AGENT CRM - DASHBOARD COMPLETO
 // ============================================
 const API_URL = 'https://crm-api-gules.vercel.app';
 
-// ============================================
-// ESTADO GLOBAL
-// ============================================
+// Estado global
 let leads = [];
 let selectedLead = null;
 let currentFilter = 'all';
 let refreshInterval = null;
 let lastLoadTime = null;
 
-// ============================================
-// ELEMENTOS DO DOM
-// ============================================
+// Elementos DOM
 const leadsList = document.getElementById('leadsList');
 const detailPanel = document.getElementById('detailPanel');
 const companyName = document.getElementById('companyName');
@@ -23,21 +19,19 @@ const lastUpdateTime = document.getElementById('lastUpdateTime');
 const filterBtns = document.querySelectorAll('.filter-btn');
 const toastContainer = document.getElementById('toastContainer');
 
-// Stats elements
+// Stats
 const statTotal = document.getElementById('statTotal');
 const statNovos = document.getElementById('statNovos');
 const statAtendimento = document.getElementById('statAtendimento');
 const statConvertidos = document.getElementById('statConvertidos');
 
-// Count elements
+// Counts
 const countAll = document.getElementById('countAll');
 const countNovo = document.getElementById('countNovo');
 const countAtendimento = document.getElementById('countAtendimento');
 const countConvertido = document.getElementById('countConvertido');
 
-// ============================================
-// VERIFICAR AUTENTICAÇÃO
-// ============================================
+// Auth
 const token = localStorage.getItem('crm_token');
 const company = JSON.parse(localStorage.getItem('crm_company') || '{}');
 
@@ -45,26 +39,26 @@ if (!token) {
     window.location.href = 'index.html';
 }
 
-// ============================================
-// MAPEAMENTO DE STATUS
-// ============================================
+// Mapeamento de status
 const STATUS_LABELS = {
     'novo': '🔵 Novo',
-    'em_atendimento': '🟡 Em Atendimento',
+    'em_atendimento': '🟡 Em Atendimento', 
     'convertido': '🟢 Convertido',
-    'perdido': '⚫ Perdido'
+    'perdido': '⚫ Perdido',
+    'contacted': '📞 Contactado',
+    'qualified': '✅ Qualificado'
 };
 
 const STATUS_CSS = {
     'novo': 'status-novo',
     'em_atendimento': 'status-em-atendimento',
     'convertido': 'status-convertido',
-    'perdido': 'status-perdido'
+    'perdido': 'status-perdido',
+    'contacted': 'status-em-atendimento',
+    'qualified': 'status-convertido'
 };
 
-// ============================================
-// INICIALIZAÇÃO
-// ============================================
+// Inicialização
 function init() {
     companyName.textContent = company.name || 'Empresa';
     companyPlan.textContent = company.plan || 'Free';
@@ -73,9 +67,7 @@ function init() {
     setupFilterListeners();
 }
 
-// ============================================
-// EVENT LISTENERS PARA FILTROS
-// ============================================
+// Filtros
 function setupFilterListeners() {
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -87,9 +79,7 @@ function setupFilterListeners() {
     });
 }
 
-// ============================================
-// CARREGAR LEADS
-// ============================================
+// Carregar leads da API
 async function loadLeads() {
     const refreshBtn = document.querySelector('.refresh-btn');
     if (refreshBtn) refreshBtn.classList.add('spinning');
@@ -144,19 +134,15 @@ async function loadLeads() {
     }
 }
 
-// ============================================
-// ATUALIZAR STATS
-// ============================================
+// Atualizar estatísticas
 function updateStats() {
     statTotal.textContent = leads.length;
     statNovos.textContent = leads.filter(l => l.status === 'novo').length;
-    statAtendimento.textContent = leads.filter(l => l.status === 'em_atendimento').length;
-    statConvertidos.textContent = leads.filter(l => l.status === 'convertido').length;
+    statAtendimento.textContent = leads.filter(l => l.status === 'em_atendimento' || l.status === 'contacted').length;
+    statConvertidos.textContent = leads.filter(l => l.status === 'convertido' || l.status === 'qualified').length;
 }
 
-// ============================================
-// ATUALIZAR CONTADORES DOS FILTROS
-// ============================================
+// Atualizar contadores dos filtros
 function updateFilterCounts() {
     countAll.textContent = leads.length;
     countNovo.textContent = leads.filter(l => l.status === 'novo').length;
@@ -164,9 +150,7 @@ function updateFilterCounts() {
     countConvertido.textContent = leads.filter(l => l.status === 'convertido').length;
 }
 
-// ============================================
-// ATUALIZAR TEMPO DE ATUALIZAÇÃO
-// ============================================
+// Atualizar tempo
 function updateLastUpdateTime() {
     if (lastLoadTime) {
         const now = new Date();
@@ -184,9 +168,7 @@ function updateLastUpdateTime() {
     }
 }
 
-// ============================================
-// RENDERIZAR LISTA DE LEADS (COM NOME)
-// ============================================
+// Renderizar lista de leads (AGORA COM NOME PRINCIPAL)
 function renderLeads() {
     const filtered = filterLeads(leads);
 
@@ -209,53 +191,61 @@ function renderLeads() {
         const statusLabel = STATUS_LABELS[lead.status] || '🔵 Novo';
         const statusCss = STATUS_CSS[lead.status] || 'status-novo';
         
-        // NOME DO LEAD (prioridade máxima)
+        // NOME DO LEAD (CAMPO PRINCIPAL)
         const leadName = lead.name || 'Sem nome';
         
         // Telefone formatado
-        const phoneFormatted = formatPhone(lead.user_id);
+        const phoneFormatted = formatPhone(lead.phone || lead.whatsapp || '');
         
-        // Ícone do canal
-        const canalIcon = lead.canal === 'whatsapp' ? '📱 WhatsApp' : '📧 Email';
+        // Empresa do lead (se houver)
+        const companyText = lead.company_name ? `🏢 ${lead.company_name}` : '';
         
-        // Resumo do interesse
+        // Cargo (se houver)
+        const jobText = lead.job_title ? `💼 ${lead.job_title}` : '';
+        
+        // Cidade/Estado
+        const locationText = (lead.city && lead.state) ? `📍 ${lead.city}/${lead.state}` : '';
+        
+        // Interesse resumido
         const interesseResumo = lead.interesse 
-            ? lead.interesse.substring(0, 45) + (lead.interesse.length > 45 ? '...' : '')
-            : 'Sem descrição';
+            ? lead.interesse.substring(0, 50) + (lead.interesse.length > 50 ? '...' : '')
+            : (lead.notes ? lead.notes.substring(0, 50) + '...' : 'Sem descrição');
 
         return `
             <div class="lead-item ${selectedLead?.id === lead.id ? 'selected' : ''}"
-                 onclick="selectLead('${lead.id}')">
+                 onclick="selectLead(${lead.id})" data-id="${lead.id}">
                 <div class="lead-header">
-                    <span class="lead-name">👤 ${escapeHtml(leadName)}</span>
+                    <span class="lead-name" style="font-weight: 600; color: #f1f5f9; font-size: 15px;">
+                        👤 ${escapeHtml(leadName)}
+                    </span>
                     <span class="lead-status ${statusCss}">
                         ${statusLabel}
                     </span>
                 </div>
-                <div class="lead-info">
-                    <div style="margin-bottom: 4px; color: #60a5fa; font-size: 13px; font-weight: 500;">
+                <div class="lead-info" style="margin-top: 8px;">
+                    ${companyText ? `<div style="margin-bottom: 4px; color: #60a5fa; font-size: 13px; font-weight: 500;">${escapeHtml(companyText)}</div>` : ''}
+                    ${jobText ? `<div style="margin-bottom: 4px; color: #94a3b8; font-size: 12px;">${escapeHtml(jobText)}</div>` : ''}
+                    <div style="margin-bottom: 4px; color: #cbd5e1; font-size: 13px;">
                         📞 ${phoneFormatted}
                     </div>
-                    <div style="margin-bottom: 4px; color: #94a3b8; font-size: 12px;">
-                        ${canalIcon}
+                    ${locationText ? `<div style="margin-bottom: 4px; color: #64748b; font-size: 12px;">${escapeHtml(locationText)}</div>` : ''}
+                    <div style="color: #e2e8f0; font-size: 13px; font-style: italic; margin-top: 6px;">
+                        "${escapeHtml(interesseResumo)}"
                     </div>
-                    <div style="color: #e2e8f0; font-size: 13px; margin-bottom: 4px;">
-                        ${escapeHtml(interesseResumo)}
-                    </div>
-                    <span class="lead-date">📅 ${formatDate(lead.criado_em)}</span>
+                    <span class="lead-date" style="margin-top: 8px; display: block; font-size: 11px; color: #64748b;">
+                        📅 ${formatDate(lead.created_at)}
+                    </span>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// ============================================
-// FORMATAR TELEFONE
-// ============================================
-function formatPhone(userId) {
-    if (!userId) return 'Não informado';
+// Formatar telefone
+function formatPhone(phone) {
+    if (!phone) return 'Não informado';
     
-    const numero = userId.replace(/\D/g, '');
+    const numero = phone.replace(/\D/g, '');
     
     if (numero.length === 13 && numero.startsWith('55')) {
         const ddd = numero.substring(2, 4);
@@ -271,125 +261,136 @@ function formatPhone(userId) {
         return `(${ddd}) ${parte1}-${parte2}`;
     }
     
-    return userId;
+    return phone;
 }
 
-// ============================================
-// FILTRAR LEADS
-// ============================================
+// Filtrar leads
 function filterLeads(leads) {
     if (currentFilter === 'all') return leads;
     const normalized = currentFilter.replace(/-/g, '_');
     return leads.filter(lead => lead.status === normalized);
 }
 
-// ============================================
-// SELECIONAR LEAD
-// ============================================
-async function selectLead(leadId) {
-    selectedLead = leads.find(l => l.id === leadId || l.user_id === leadId);
+// Selecionar lead (agora usando ID numérico)
+function selectLead(leadId) {
+    selectedLead = leads.find(l => l.id === leadId);
     if (!selectedLead) return;
     renderLeads();
-    await loadLeadDetails(selectedLead.user_id || leadId);
+    loadLeadDetails(leadId);
 }
 
-// ============================================
-// CARREGAR DETALHES DO LEAD
-// ============================================
-async function loadLeadDetails(userId) {
+// Carregar detalhes do lead e mensagens
+async function loadLeadDetails(leadId) {
     try {
-        const response = await fetch(`${API_URL}/api/messages?user_id=${encodeURIComponent(userId)}`, {
+        // Buscar mensagens deste lead
+        const response = await fetch(`${API_URL}/api/messages?lead_id=${leadId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Erro ao carregar mensagens');
+        let messages = [];
+        if (response.ok) {
+            messages = await response.json();
         }
 
-        const messages = await response.json();
         renderLeadDetails(messages);
 
     } catch (error) {
-        console.error('Erro:', error);
+        console.error('Erro ao carregar detalhes:', error);
         renderLeadDetails([]);
     }
 }
 
-// ============================================
-// RENDERIZAR DETALHES (COM NOME EDITÁVEL)
-// ============================================
+// Renderizar painel de detalhes (COMPLETO COM NOME)
 function renderLeadDetails(messages) {
     if (!selectedLead) return;
 
-    const leadName = selectedLead.name || 'Sem nome';
-    const phoneFormatted = formatPhone(selectedLead.user_id);
-    const canalIcon = selectedLead.canal === 'whatsapp' ? '📱 WhatsApp' : '📧 Email';
-    const interesseCompleto = selectedLead.interesse || 'Nenhuma descrição de interesse';
-    const ultimaMensagem = selectedLead.ultima_mensagem || 'Nenhuma mensagem registrada';
+    const lead = selectedLead;
+    const leadName = lead.name || 'Sem nome';
+    const phoneFormatted = formatPhone(lead.phone || lead.whatsapp || '');
+    const whatsappFormatted = formatPhone(lead.whatsapp || lead.phone || '');
+    
+    // Informações adicionais
+    const emailText = lead.email ? `📧 ${lead.email}` : '';
+    const companyText = lead.company_name ? `🏢 ${lead.company_name}` : '';
+    const jobText = lead.job_title ? `💼 ${lead.job_title}` : '';
+    const industryText = lead.industry ? `🏭 ${lead.industry}` : '';
+    const locationText = (lead.city && lead.state) ? `📍 ${lead.city}, ${lead.state}` : '';
+    
+    const interesseCompleto = lead.interesse || lead.notes || 'Nenhuma descrição de interesse cadastrada';
 
     detailPanel.innerHTML = `
-        <div class="detail-header">
-            <div>
-                <h3 class="detail-title" style="margin-bottom: 4px;">👤 ${escapeHtml(leadName)}</h3>
-                <div style="color: #60a5fa; font-size: 14px;">📞 ${phoneFormatted}</div>
+        <div class="detail-header" style="border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <h3 class="detail-title" style="font-size: 22px; margin-bottom: 6px; color: #f8fafc; font-weight: 700;">
+                    👤 ${escapeHtml(leadName)}
+                </h3>
+                <div style="color: #60a5fa; font-size: 15px; font-weight: 500; margin-bottom: 4px;">
+                    📞 ${phoneFormatted}
+                </div>
+                ${emailText ? `<div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">${escapeHtml(emailText)}</div>` : ''}
             </div>
-            ${buildStatusSelect(selectedLead)}
+            ${buildStatusSelect(lead)}
         </div>
 
-        <div style="padding: 16px; background: rgba(30, 41, 59, 0.5); border-radius: 8px; margin-bottom: 16px;">
-            <div style="margin-bottom: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
-                ${canalIcon} • ID: ${escapeHtml(selectedLead.user_id)}
+        <div style="padding: 20px; background: rgba(30, 41, 59, 0.6); border-radius: 12px; margin-bottom: 20px; border: 1px solid #475569;">
+            <div style="margin-bottom: 16px; color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                📋 Informações do Lead
             </div>
             
-            <div style="margin-bottom: 8px; color: #e2e8f0; font-weight: 600;">
-                📋 Interesse:
+            <div style="display: grid; gap: 10px; margin-bottom: 16px;">
+                ${companyText ? `<div style="color: #e2e8f0; font-size: 14px;">${escapeHtml(companyText)}</div>` : ''}
+                ${jobText ? `<div style="color: #cbd5e1; font-size: 13px;">${escapeHtml(jobText)}</div>` : ''}
+                ${industryText ? `<div style="color: #94a3b8; font-size: 13px;">${escapeHtml(industryText)}</div>` : ''}
+                ${locationText ? `<div style="color: #64748b; font-size: 13px;">${escapeHtml(locationText)}</div>` : ''}
             </div>
-            <div style="color: #cbd5e1; font-size: 14px; line-height: 1.5; margin-bottom: 16px;">
+
+            <div style="margin-bottom: 8px; color: #e2e8f0; font-weight: 600; font-size: 14px;">
+                📝 Interesse / Descrição:
+            </div>
+            <div style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 20px; padding: 12px; background: rgba(15, 23, 42, 0.5); border-radius: 8px;">
                 ${escapeHtml(interesseCompleto)}
             </div>
 
-            <div style="display: flex; gap: 8px;">
-                <button onclick="editLeadName('${selectedLead.user_id}', '${escapeHtml(leadName)}')" 
-                        style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="editLeadName(${lead.id}, '${escapeHtml(leadName)}')" 
+                        style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
                     ✏️ Editar Nome
                 </button>
-                <button onclick="editLeadInterest('${selectedLead.user_id}')" 
-                        style="padding: 6px 12px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
+                <button onclick="editLeadInterest(${lead.id})" 
+                        style="padding: 8px 16px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
                     📝 Editar Interesse
                 </button>
-            </div>
-        </div>
-
-        <div style="padding: 16px; background: rgba(30, 41, 59, 0.3); border-radius: 8px; margin-bottom: 16px;">
-            <div style="color: #94a3b8; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-                💬 Última mensagem
-            </div>
-            <div style="color: #cbd5e1; font-size: 14px; font-style: italic; line-height: 1.5;">
-                "${escapeHtml(ultimaMensagem)}"
+                <a href="https://wa.me/${lead.whatsapp || lead.phone}" target="_blank"
+                   style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;">
+                    💬 WhatsApp
+                </a>
             </div>
         </div>
 
         <div class="messages-section">
-            <h4 class="section-title">
-                📨 Histórico Completo
-                <span style="margin-left: 8px; padding: 2px 8px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; font-size: 10px; color: #93c5fd;">${messages.length} mensagens</span>
+            <h4 class="section-title" style="font-size: 14px; margin-bottom: 16px; color: #94a3b8; font-weight: 600;">
+                📨 Histórico de Mensagens
+                <span style="margin-left: 8px; padding: 4px 12px; background: rgba(59, 130, 246, 0.15); border-radius: 12px; font-size: 11px; color: #60a5fa; font-weight: 600;">${messages.length} mensagens</span>
             </h4>
-            <div class="messages-list">
+            <div class="messages-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto;">
                 ${messages.length === 0 ? `
-                    <div class="empty-state" style="padding: 30px 10px;">
-                        <div class="empty-state-icon">💬</div>
-                        <div class="empty-state-text">Nenhuma mensagem no histórico</div>
+                    <div class="empty-state" style="padding: 40px 20px; text-align: center;">
+                        <div class="empty-state-icon" style="font-size: 32px; margin-bottom: 8px;">💬</div>
+                        <div class="empty-state-text" style="color: #64748b; font-size: 13px;">Nenhuma mensagem no histórico</div>
                     </div>
                 ` : messages.map(msg => `
-                    <div class="message ${msg.direction === 'inbound' ? 'inbound' : 'outbound'}">
-                        <div class="message-header">
-                            <span>${msg.direction === 'inbound' ? '📥 Recebida' : '📤 Enviada'}</span>
-                            <span>${formatDateTime(msg.criado_em || msg.created_at)}</span>
+                    <div class="message ${msg.direction === 'inbound' ? 'inbound' : 'outbound'}" 
+                         style="padding: 14px; border-radius: 12px; max-width: 85%; ${msg.direction === 'inbound' ? 'background: #1e293b; align-self: flex-start; border-bottom-left-radius: 4px;' : 'background: rgba(99, 102, 241, 0.2); align-self: flex-end; border-bottom-right-radius: 4px;'}">
+                        <div class="message-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; color: #64748b;">
+                            <span style="font-weight: 600;">${msg.direction === 'inbound' ? '📥 Recebida' : '📤 Enviada'}</span>
+                            <span>${formatDateTime(msg.created_at)}</span>
                         </div>
-                        <div class="message-content">${escapeHtml(msg.content || msg.mensagem || '')}</div>
+                        <div class="message-content" style="color: #f1f5f9; font-size: 14px; line-height: 1.5;">
+                            ${escapeHtml(msg.content || '')}
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -397,13 +398,11 @@ function renderLeadDetails(messages) {
     `;
 }
 
-// ============================================
-// EDITAR NOME DO LEAD (NOVA FUNÇÃO)
-// ============================================
-async function editLeadName(userId, currentName) {
-    const newName = prompt('Digite o nome do lead:', currentName === 'Sem nome' ? '' : currentName);
+// Editar nome do lead
+async function editLeadName(leadId, currentName) {
+    const newName = prompt('Digite o nome completo do lead:', currentName === 'Sem nome' ? '' : currentName);
     
-    if (newName === null) return; // Cancelou
+    if (newName === null) return;
     
     if (newName.trim() === '') {
         showToast('Nome não pode estar vazio', 'error');
@@ -418,7 +417,7 @@ async function editLeadName(userId, currentName) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                user_id: userId, 
+                id: leadId, 
                 name: newName.trim() 
             })
         });
@@ -428,15 +427,17 @@ async function editLeadName(userId, currentName) {
         }
 
         // Atualizar localmente
-        if (selectedLead) {
+        if (selectedLead && selectedLead.id === leadId) {
             selectedLead.name = newName.trim();
-            const idx = leads.findIndex(l => (l.user_id || l.id) === userId);
-            if (idx !== -1) leads[idx].name = newName.trim();
         }
+        const idx = leads.findIndex(l => l.id === leadId);
+        if (idx !== -1) leads[idx].name = newName.trim();
 
         renderLeads();
-        renderLeadDetails([]);
-        await loadLeadDetails(userId);
+        if (selectedLead && selectedLead.id === leadId) {
+            renderLeadDetails([]);
+            loadLeadDetails(leadId);
+        }
         
         showToast('Nome atualizado com sucesso!', 'success');
 
@@ -446,12 +447,11 @@ async function editLeadName(userId, currentName) {
     }
 }
 
-// ============================================
-// EDITAR INTERESSE DO LEAD
-// ============================================
-async function editLeadInterest(userId) {
-    const currentInterest = selectedLead?.interesse || '';
-    const newInterest = prompt('Digite o interesse/descrição:', currentInterest);
+// Editar interesse do lead
+async function editLeadInterest(leadId) {
+    const lead = leads.find(l => l.id === leadId);
+    const currentInterest = lead?.interesse || '';
+    const newInterest = prompt('Digite o interesse ou descrição:', currentInterest);
     
     if (newInterest === null) return;
 
@@ -463,7 +463,7 @@ async function editLeadInterest(userId) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                user_id: userId, 
+                id: leadId, 
                 interesse: newInterest.trim() 
             })
         });
@@ -472,15 +472,18 @@ async function editLeadInterest(userId) {
             throw new Error('Erro ao atualizar interesse');
         }
 
-        if (selectedLead) {
+        if (lead) {
+            lead.interesse = newInterest.trim();
+        }
+        if (selectedLead && selectedLead.id === leadId) {
             selectedLead.interesse = newInterest.trim();
-            const idx = leads.findIndex(l => (l.user_id || l.id) === userId);
-            if (idx !== -1) leads[idx].interesse = newInterest.trim();
         }
 
         renderLeads();
-        renderLeadDetails([]);
-        await loadLeadDetails(userId);
+        if (selectedLead && selectedLead.id === leadId) {
+            renderLeadDetails([]);
+            loadLeadDetails(leadId);
+        }
         
         showToast('Interesse atualizado com sucesso!', 'success');
 
@@ -490,25 +493,23 @@ async function editLeadInterest(userId) {
     }
 }
 
-// ============================================
-// HELPER — GERA SELECT DE STATUS
-// ============================================
+// Select de status
 function buildStatusSelect(lead) {
-    const userId = lead.user_id || lead.id;
     return `
-        <select class="status-select" onchange="updateStatus('${userId}', this.value)">
+        <select class="status-select" onchange="updateStatus(${lead.id}, this.value)" 
+                style="padding: 8px 16px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #f1f5f9; font-size: 13px; cursor: pointer; font-weight: 500;">
             <option value="novo"           ${lead.status === 'novo'           ? 'selected' : ''}>🔵 Novo</option>
+            <option value="contacted"      ${lead.status === 'contacted'      ? 'selected' : ''}>📞 Contactado</option>
             <option value="em_atendimento" ${lead.status === 'em_atendimento' ? 'selected' : ''}>🟡 Em Atendimento</option>
+            <option value="qualified"      ${lead.status === 'qualified'      ? 'selected' : ''}>✅ Qualificado</option>
             <option value="convertido"     ${lead.status === 'convertido'     ? 'selected' : ''}>🟢 Convertido</option>
             <option value="perdido"        ${lead.status === 'perdido'        ? 'selected' : ''}>⚫ Perdido</option>
         </select>
     `;
 }
 
-// ============================================
-// ATUALIZAR STATUS DO LEAD
-// ============================================
-async function updateStatus(userId, newStatus) {
+// Atualizar status
+async function updateStatus(leadId, newStatus) {
     try {
         const response = await fetch(`${API_URL}/api/leads`, {
             method: 'PATCH',
@@ -516,46 +517,47 @@ async function updateStatus(userId, newStatus) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ user_id: userId, status: newStatus })
+            body: JSON.stringify({ id: leadId, status: newStatus })
         });
 
         if (!response.ok) {
             throw new Error('Erro ao atualizar status');
         }
 
-        if (selectedLead) {
+        const lead = leads.find(l => l.id === leadId);
+        if (lead) lead.status = newStatus;
+        
+        if (selectedLead && selectedLead.id === leadId) {
             selectedLead.status = newStatus;
-            const idx = leads.findIndex(l => (l.user_id || l.id) === userId);
-            if (idx !== -1) leads[idx].status = newStatus;
         }
 
         updateStats();
         updateFilterCounts();
         renderLeads();
 
-        if (selectedLead && (selectedLead.user_id || selectedLead.id) === userId) {
+        if (selectedLead && selectedLead.id === leadId) {
             renderLeadDetails([]);
-            await loadLeadDetails(userId);
+            loadLeadDetails(leadId);
         }
 
         const statusNames = {
             'novo': 'Novo',
+            'contacted': 'Contactado',
             'em_atendimento': 'Em Atendimento',
+            'qualified': 'Qualificado',
             'convertido': 'Convertido',
             'perdido': 'Perdido'
         };
 
-        showToast(`Status atualizado para "${statusNames[newStatus] || newStatus}"`, 'success');
+        showToast(`Status atualizado: ${statusNames[newStatus] || newStatus}`, 'success');
 
     } catch (error) {
         console.error('Erro:', error);
-        showToast('Erro ao atualizar status. Tente novamente.', 'error');
+        showToast('Erro ao atualizar status', 'error');
     }
 }
 
-// ============================================
-// AUTO-REFRESH A CADA 30 SEGUNDOS
-// ============================================
+// Auto-refresh
 function startAutoRefresh() {
     if (refreshInterval) {
         clearInterval(refreshInterval);
@@ -564,14 +566,12 @@ function startAutoRefresh() {
     refreshInterval = setInterval(async () => {
         await loadLeads();
         if (selectedLead) {
-            await loadLeadDetails(selectedLead.user_id || selectedLead.id);
+            await loadLeadDetails(selectedLead.id);
         }
     }, 30000);
 }
 
-// ============================================
-// LOGOUT
-// ============================================
+// Logout
 function logout() {
     localStorage.removeItem('crm_token');
     localStorage.removeItem('crm_company');
@@ -581,28 +581,41 @@ function logout() {
     window.location.href = 'index.html';
 }
 
-// ============================================
-// TOAST NOTIFICATIONS
-// ============================================
+// Toast notifications
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 16px 20px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
     toast.innerHTML = `
-        <span class="toast-icon">${type === 'success' ? '✅' : '⚠️'}</span>
-        <span class="toast-message">${message}</span>
+        <span style="font-size: 20px;">${type === 'success' ? '✅' : '⚠️'}</span>
+        <span>${message}</span>
     `;
 
-    toastContainer.appendChild(toast);
+    document.body.appendChild(toast);
 
     setTimeout(() => {
-        toast.style.animation = 'slideIn 0.3s ease-out reverse';
+        toast.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-// ============================================
-// UTILITÁRIOS
-// ============================================
+// Utilitários
 function formatDate(dateString) {
     if (!dateString) return 'Data não disponível';
     const date = new Date(dateString);
@@ -632,16 +645,26 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ============================================
-// CLEANUP
-// ============================================
+// CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(100%); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(100%); }
+    }
+`;
+document.head.appendChild(style);
+
+// Cleanup
 window.addEventListener('beforeunload', () => {
     if (refreshInterval) {
         clearInterval(refreshInterval);
     }
 });
 
-// ============================================
-// INICIAR APLICAÇÃO
-// ============================================
+// Iniciar
 init();
