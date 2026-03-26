@@ -3,46 +3,79 @@ let leads = [];
 let selectedLead = null;
 let currentFilter = 'all';
 
+// Auth - Pega os dados salvos
 const token = localStorage.getItem('crm_token');
 const companyData = JSON.parse(localStorage.getItem('crm_company') || '{}');
 
-if (!token) window.location.href = 'index.html';
+if (!token) {
+    window.location.href = 'index.html';
+}
 
 function init() {
-    let name = companyData.name || 'Empresa';
+    console.log("Iniciando Dashboard...");
+    // 1. Correção visual do nome
+    let name = companyData.name || 'Minha Empresa';
     if (name.toLowerCase().includes("preocu")) name = "Souza Produções";
-    document.getElementById('companyName').textContent = name;
+    
+    const nameEl = document.getElementById('companyName');
+    if (nameEl) nameEl.textContent = name;
+    
+    // 2. Webhook
     updateWebhookInfo();
+    
+    // 3. Carregar dados
     loadLeads();
+    
+    // Auto-refresh a cada 2 minutos
     setInterval(loadLeads, 120000);
 }
 
 async function loadLeads() {
     try {
-        const res = await fetch(`${API_URL}/api/leads`, { headers: { 'Authorization': `Bearer ${token}` } });
+        console.log("Sincronizando com o banco de dados...");
+        const res = await fetch(`${API_URL}/api/leads`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        
+        if (!res.ok) throw new Error("Erro na API");
+        
         const data = await res.json();
         leads = data.leads || [];
+        console.log("Leads carregados:", leads.length);
         renderAll();
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error("Falha ao carregar leads:", err); 
+    }
 }
 
 function switchTab(tabId) {
     document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`tab-${tabId}`).classList.add('active');
-    document.getElementById(`btn-${tabId}`).classList.add('active');
+    
+    const targetTab = document.getElementById(`tab-${tabId}`);
+    const targetBtn = document.getElementById(`btn-${tabId}`);
+    
+    if (targetTab) targetTab.classList.add('active');
+    if (targetBtn) targetBtn.classList.add('active');
 }
 
-function setFilter(f) { currentFilter = f; switchTab('dashboard'); renderAll(); }
+function setFilter(f) { 
+    currentFilter = f; 
+    switchTab('dashboard'); 
+    renderAll(); 
+}
 
 function renderAll() {
+    // Stats
     document.getElementById('statTotal').textContent = leads.length;
     document.getElementById('statNovos').textContent = leads.filter(l => l.status === 'novo').length;
     document.getElementById('statAtendimento').textContent = leads.filter(l => l.status === 'em_atendimento').length;
     document.getElementById('statConvertidos').textContent = leads.filter(l => l.status === 'convertido').length;
 
+    // Lista Lateral
     const filtered = currentFilter === 'all' ? leads : leads.filter(l => l.status === currentFilter);
-    document.getElementById('countCurrent').textContent = filtered.length;
+    const countEl = document.getElementById('countCurrent');
+    if (countEl) countEl.textContent = filtered.length;
     
     document.getElementById('leadsList').innerHTML = filtered.map(l => `
         <div class="lead-card ${selectedLead?.id === l.id ? 'selected' : ''}" onclick="selectLead(${l.id})">
@@ -52,15 +85,41 @@ function renderAll() {
         </div>
     `).join('');
 
-    document.getElementById('tableBody').innerHTML = leads.map(l => `<tr><td>${l.name}</td><td>${l.phone}</td><td>${l.status}</td><td style="color:#10b981; font-family:monospace;">${l.signature_key || 'SP-2026'}</td><td><button onclick="selectLead(${l.id})" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Ver</button></td></tr>`).join('');
+    // Tabela
+    const tableBody = document.getElementById('tableBody');
+    if (tableBody) {
+        tableBody.innerHTML = leads.map(l => `
+            <tr>
+                <td>${l.name}</td>
+                <td>${l.phone}</td>
+                <td><span class="plan-badge">${l.status}</span></td>
+                <td style="color:#10b981; font-family:monospace;">${l.signature_key || 'SP-2026'}</td>
+                <td><button onclick="selectLead(${l.id})" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Ver</button></td>
+            </tr>
+        `).join('');
+    }
 
-    const cols = { 'novo': document.getElementById('col-novo'), 'em_atendimento': document.getElementById('col-atendimento'), 'convertido': document.getElementById('col-convertido') };
+    // Kanban
+    const cols = { 
+        'novo': document.getElementById('col-novo'), 
+        'em_atendimento': document.getElementById('col-atendimento'), 
+        'convertido': document.getElementById('col-convertido') 
+    };
     Object.values(cols).forEach(c => { if(c) c.innerHTML = ""; });
-    leads.forEach(l => { if(cols[l.status]) cols[l.status].innerHTML += `<div class="kanban-card" onclick="selectLead(${l.id})"><strong>${l.name}</strong><br><small>${l.phone}</small></div>`; });
+    leads.forEach(l => { 
+        if(cols[l.status]) {
+            cols[l.status].innerHTML += `
+                <div class="kanban-card" onclick="selectLead(${l.id})">
+                    <strong>${l.name}</strong><br><small>${l.phone}</small>
+                </div>`;
+        }
+    });
 }
 
 function selectLead(id) {
     selectedLead = leads.find(l => l.id === id);
+    if (!selectedLead) return;
+    
     switchTab('dashboard');
     renderAll();
     
@@ -101,10 +160,6 @@ function selectLead(id) {
                     <option value="convertido">Ganho</option>
                 </select>
             </div>
-            
-            <div style="margin-top:30px; text-align:center;">
-                <small style="color:var(--text-muted); font-family:monospace; font-size:10px;">DIGITAL SP: ${selectedLead.signature_key || 'ORIGINAL'}</small>
-            </div>
         </div>`;
 }
 
@@ -112,32 +167,80 @@ async function executarIA(acao) {
     const btnAi = document.getElementById('btn-ai');
     const btnMsg = document.getElementById('btn-msg-ia');
     const resultBox = document.getElementById('ai-briefing-result');
+    
     if (acao === 'analyze') { btnAi.textContent = "Isis pensando..."; btnAi.disabled = true; } 
     else { btnMsg.textContent = "Isis escrevendo..."; btnMsg.disabled = true; }
+
     try {
         const payload = { action: acao, leadName: selectedLead.name, leadInteresse: selectedLead.interesse, briefing: document.getElementById('ai-resumo')?.textContent || "" };
-        const res = await fetch(`${API_URL}/api/ai`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const res = await fetch(`${API_URL}/api/ai`, { 
+            method: 'POST', 
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(payload) 
+        });
+        
         const data = await res.json();
+        
         if (acao === 'analyze') {
             document.getElementById('ai-resumo').textContent = data.resumo;
             document.getElementById('ai-score').textContent = data.score + "/100";
             document.getElementById('ai-sugestao').textContent = data.sugestao;
-            const temp = document.getElementById('ai-temp'); temp.textContent = data.temperatura.toUpperCase();
-            const t = data.temperatura.toLowerCase(); temp.style.background = t.includes('quente') ? '#ef4444' : (t.includes('morno') ? '#fbbf24' : '#60a5fa');
-            resultBox.style.display = 'block'; btnAi.innerHTML = "✨ Briefing Atualizado";
+            const temp = document.getElementById('ai-temp'); 
+            temp.textContent = data.temperatura.toUpperCase();
+            const t = data.temperatura.toLowerCase(); 
+            temp.style.background = t.includes('quente') ? '#ef4444' : (t.includes('morno') ? '#fbbf24' : '#60a5fa');
+            resultBox.style.display = 'block'; 
+            btnAi.innerHTML = "✨ Briefing Atualizado";
         } else {
-            // LIMPEZA DE SÍMBOLOS E ENVIO LIMPO
-            const textoLimpo = data.message.replace(//g, "").trim();
-            window.open(`https://wa.me/${selectedLead.phone.replace(/\D/g,'')}?text=${encodeURIComponent(textoLimpo)}`, '_blank');
+            // ENVIO LIMPO PARA WHATSAPP
+            window.open(`https://wa.me/${selectedLead.phone.replace(/\D/g,'')}?text=${encodeURIComponent(data.message.trim())}`, '_blank');
             btnMsg.innerHTML = "Gerar Abordagem Executiva";
         }
-    } catch (err) { alert("A Isis está descansando."); } finally { if (btnAi) btnAi.disabled = false; if (btnMsg) btnMsg.disabled = false; }
+    } catch (err) { 
+        alert("A Isis está descansando."); 
+    } finally { 
+        if (btnAi) btnAi.disabled = false; 
+        if (btnMsg) btnMsg.disabled = false; 
+    }
 }
 
-function updateWebhookInfo() { const urlInput = document.getElementById('webhookUrl'); if (urlInput && companyData.id) urlInput.value = `https://crm-api-isisaiagent.vercel.app/api/webhook?id=${companyData.id}`; }
-function copyWebhook() { const copyText = document.getElementById("webhookUrl"); copyText.select(); navigator.clipboard.writeText(copyText.value); alert("URL Copiada!"); }
-async function updateStatus(id, status) { if(!status) return; await fetch(`${API_URL}/api/leads`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) }); loadLeads(); }
-async function exportarDados() { try { const res = await fetch(`${API_URL}/api/export`, { headers: { 'Authorization': `Bearer ${token}` } }); const data = await res.json(); const csv = "Nome,Telefone,Status,Digital\n" + data.leads.map(l => `${l.name},${l.phone},${l.status},${l.signature_key}`).join("\n"); const blob = new Blob([csv], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_isis.csv`; a.click(); } catch (err) { alert("Erro ao exportar."); } }
+function updateWebhookInfo() { 
+    const urlInput = document.getElementById('webhookUrl'); 
+    if (urlInput && companyData.id) urlInput.value = `${API_URL}/api/webhook?id=${companyData.id}`; 
+}
+
+function copyWebhook() { 
+    const copyText = document.getElementById("webhookUrl"); 
+    copyText.select(); 
+    navigator.clipboard.writeText(copyText.value); 
+    alert("URL Copiada!"); 
+}
+
+async function updateStatus(id, status) { 
+    if(!status) return; 
+    await fetch(`${API_URL}/api/leads`, { 
+        method: 'PATCH', 
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ id, status }) 
+    }); 
+    loadLeads(); 
+}
+
+async function exportarDados() { 
+    try { 
+        const res = await fetch(`${API_URL}/api/export`, { headers: { 'Authorization': `Bearer ${token}` } }); 
+        const data = await res.json(); 
+        const csv = "Nome,Telefone,Status\n" + data.leads.map(l => `${l.name},${l.phone},${l.status}`).join("\n"); 
+        const blob = new Blob([csv], { type: 'text/csv' }); 
+        const url = window.URL.createObjectURL(blob); 
+        const a = document.createElement('a'); a.href = url; a.download = `backup_leads.csv`; a.click(); 
+    } catch (err) { 
+        alert("Erro ao exportar."); 
+    } 
+}
+
 function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+// Garante o início do sistema
 document.addEventListener('DOMContentLoaded', init);
