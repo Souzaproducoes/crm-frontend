@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Isis Ai Agent — Dashboard</title>
+    <title>Isis Ai Agent — Enterprise CRM</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="premium-theme">
     <div class="app-shell">
@@ -14,39 +14,85 @@
                 <div class="user-avatar">AI</div>
                 <div class="user-info">
                     <p id="companyName" class="company-title">...</p>
-                    <span id="companyPlan" class="plan-badge">FREE</span>
+                    <span id="companyPlan" class="plan-badge">PRO PLAN</span>
                 </div>
             </div>
             <nav class="side-nav">
-                <a href="#" class="nav-btn active">📊 Dashboard</a>
-                <a href="#" class="nav-btn">👥 Leads</a>
-                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer;">📥 Exportar Backup</button>
+                <button class="nav-btn active" onclick="switchTab('dashboard', this)"><span>📊</span> Dashboard</button>
+                <button class="nav-btn" onclick="switchTab('leads', this)"><span>👥</span> Todos os Leads</button>
+                <button class="nav-btn" onclick="switchTab('pipeline', this)"><span>📈</span> Pipeline (Kanban)</button>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981;"><span>📥</span> Exportar Backup</button>
             </nav>
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link">🚪 Sair</button>
+                <button onclick="logout()" class="logout-link">🚪 Sair do Sistema</button>
             </div>
         </aside>
 
         <main class="main-viewport">
-            <header class="content-header">
-                <h1>Painel de Controle</h1>
-                <button class="refresh-circle" onclick="loadLeads()">🔄</button>
-            </header>
-
-            <section class="metrics-grid">
-                <div class="m-card"><p>Total</p><h2 id="statTotal">0</h2></div>
-                <div class="m-card"><p>Novos</p><h2 id="statNovos" style="color:#60a5fa">0</h2></div>
-                <div class="m-card"><p>Atendimento</p><h2 id="statAtendimento" style="color:#fbbf24">0</h2></div>
-                <div class="m-card"><p>Convertidos</p><h2 id="statConvertidos" style="color:#34d399">0</h2></div>
+            <!-- SEÇÃO 1: DASHBOARD (A QUE VOCÊ JÁ TEM) -->
+            <section id="tab-dashboard" class="content-tab active">
+                <header class="content-header">
+                    <h1>Visão Geral</h1>
+                    <button class="refresh-circle" onclick="loadLeads()">🔄</button>
+                </header>
+                <section class="metrics-grid">
+                    <div class="m-card"><p>Total</p><h2 id="statTotal">0</h2></div>
+                    <div class="m-card"><p>Novos</p><h2 id="statNovos" style="color:#60a5fa">0</h2></div>
+                    <div class="m-card"><p>Em Aberto</p><h2 id="statAtendimento" style="color:#fbbf24">0</h2></div>
+                    <div class="m-card"><p>Ganhos</p><h2 id="statConvertidos" style="color:#34d399">0</h2></div>
+                </section>
+                <div class="work-area">
+                    <div class="list-container">
+                        <div class="container-head"><h3>Atividade Recente</h3></div>
+                        <div id="leadsList" class="scrollable-list"></div>
+                    </div>
+                    <div id="detailPanel" class="details-container">
+                        <div class="empty-view"><p>Selecione um contato</p></div>
+                    </div>
+                </div>
             </section>
 
-            <section class="work-area">
-                <div class="list-container">
-                    <div class="container-head"><h3>Contatos (<span id="countAll">0</span>)</h3></div>
-                    <div id="leadsList" class="scrollable-list"></div>
+            <!-- SEÇÃO 2: TABELA DE LEADS -->
+            <section id="tab-leads" class="content-tab">
+                <header class="content-header">
+                    <h1>Gestão de Leads</h1>
+                    <input type="text" id="searchLeads" placeholder="Buscar por nome ou telefone..." onkeyup="filterTable()">
+                </header>
+                <div class="panel" style="flex:1; overflow: auto; padding: 20px;">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>WhatsApp</th>
+                                <th>Status</th>
+                                <th>Interesse</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
                 </div>
-                <div id="detailPanel" class="details-container">
-                    <div class="empty-view"><p>Selecione um lead</p></div>
+            </section>
+
+            <!-- SEÇÃO 3: PIPELINE (KANBAN) -->
+            <section id="tab-pipeline" class="content-tab">
+                <header class="content-header">
+                    <h1>Funil de Vendas</h1>
+                </header>
+                <div class="kanban-board">
+                    <div class="kanban-col">
+                        <div class="col-title">Novos 🔵</div>
+                        <div id="col-novo" class="col-content"></div>
+                    </div>
+                    <div class="kanban-col">
+                        <div class="col-title">Em Contato 🟡</div>
+                        <div id="col-atendimento" class="col-content"></div>
+                    </div>
+                    <div class="kanban-col">
+                        <div class="col-title">Fechados ✅</div>
+                        <div id="col-convertido" class="col-content"></div>
+                    </div>
                 </div>
             </section>
         </main>
