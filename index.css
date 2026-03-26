@@ -1,21 +1,155 @@
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
-body { background: #0f172a; height: 100vh; display: flex; align-items: center; justify-content: center; }
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISIS AI Agent CRM - Login</title>
+    <!-- Link para o CSS que criamos -->
+    <link rel="stylesheet" href="index.css">
+    <!-- Fonte Inter do Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Logo e Cabeçalho -->
+        <header class="auth-header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <h1>ISIS CRM</h1>
+            </div>
+            <p class="subtitle">Automatize suas vendas com inteligência artificial</p>
+        </header>
 
-.login-box { background: #1e293b; padding: 40px; border-radius: 24px; width: 400px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
-.login-logo { font-size: 40px; display: block; margin-bottom: 10px; }
-.login-header h1 { color: white; margin-bottom: 5px; }
-.login-header p { color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
+        <!-- Alternador de Abas (Tabs) -->
+        <div class="auth-tabs">
+            <button class="tab-btn active" data-tab="login" id="tab-login">Entrar</button>
+            <button class="tab-btn" data-tab="register" id="tab-register">Registrar</button>
+        </div>
 
-.tab-switcher { display: flex; background: #0f172a; padding: 5px; border-radius: 12px; margin-bottom: 25px; }
-.tab-switcher button { flex: 1; padding: 10px; border: none; background: none; color: #94a3b8; cursor: pointer; border-radius: 8px; font-weight: 600; }
-.tab-switcher button.active { background: #6366f1; color: white; }
+        <!-- FORMULÁRIO DE LOGIN -->
+        <form id="loginForm" class="auth-form active">
+            <div class="form-group">
+                <label for="loginEmail">E-mail Profissional ou Empresa</label>
+                <!-- IMPORTANTE: Mudamos para type="text" para aceitar "Souza Produções" -->
+                <input 
+                    type="text" 
+                    id="loginEmail" 
+                    placeholder="seu@email.com ou Nome da Empresa" 
+                    required
+                    autocomplete="username"
+                >
+            </div>
 
-input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; color: white; margin-bottom: 15px; outline: none; }
-input:focus { border-color: #6366f1; }
+            <div class="form-group">
+                <label for="loginPassword">Sua Senha</label>
+                <input 
+                    type="password" 
+                    id="loginPassword" 
+                    placeholder="••••••••" 
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
 
-button[type="submit"] { width: 100%; padding: 16px; background: #6366f1; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
-button[type="submit"]:hover { background: #4f46e5; transform: translateY(-2px); }
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="rememberMe">
+                    <span>Lembrar de mim</span>
+                </label>
+            </div>
 
-.msg-box { margin-top: 15px; font-size: 13px; font-weight: 600; }
-.msg-success { color: #10b981; }
-.msg-error { color: #f87171; }
+            <button type="submit" class="btn-primary" id="loginBtn">
+                <span class="btn-text">Entrar no Painel</span>
+                <span class="btn-loading hidden">
+                    <span class="spinner"></span>
+                    Entrando...
+                </span>
+            </button>
+
+            <div id="loginError" class="error-message hidden"></div>
+        </form>
+
+        <!-- FORMULÁRIO DE REGISTRO (Escondido por padrão) -->
+        <form id="registerForm" class="auth-form">
+            <div class="form-group">
+                <label for="registerCompany">Nome da Empresa *</label>
+                <input type="text" id="registerCompany" placeholder="Ex: Minha Empresa Ltda" required>
+            </div>
+
+            <div class="form-group">
+                <label for="registerEmail">E-mail Profissional *</label>
+                <input type="email" id="registerEmail" placeholder="seu@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="registerPhone">Telefone / WhatsApp</label>
+                <input type="tel" id="registerPhone" placeholder="(62) 99999-9999">
+            </div>
+
+            <div class="form-group">
+                <label for="registerIndustry">Tipo de Negócio</label>
+                <select id="registerIndustry">
+                    <option value="Outro">Selecione...</option>
+                    <option value="Varejo">Varejo</option>
+                    <option value="Serviços">Prestação de Serviços</option>
+                    <option value="Tecnologia">Tecnologia / SaaS</option>
+                    <option value="Saúde">Saúde / Bem-estar</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="registerPassword">Senha *</label>
+                <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="registerConfirm">Confirmar Senha *</label>
+                <input type="password" id="registerConfirm" placeholder="Repita a senha" required>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="acceptTerms" required>
+                    <span>Aceito os Termos de Uso</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-primary" id="registerBtn">
+                <span class="btn-text">Criar Minha Conta</span>
+                <span class="btn-loading hidden">
+                    <span class="spinner"></span>
+                    Criando...
+                </span>
+            </button>
+
+            <div id="registerError" class="error-message hidden"></div>
+            <div id="registerSuccess" class="success-message hidden"></div>
+
+            <div class="trial-info">
+                <span class="trial-badge">🎁 14 dias grátis</span>
+                <p>Acesso total imediato</p>
+            </div>
+        </form>
+
+        <!-- RODAPÉ COM ASSINATURA -->
+        <footer class="auth-footer">
+            <p class="footer-text">© 2026 ISIS AI Agent CRM. Todos os direitos reservados.</p>
+            <div class="footer-signature">
+                <span class="footer-label">Desenvolvido por </span>
+                <a href="https://wa.me/5562991444852" target="_blank" class="signature-link" title="Falar no WhatsApp">
+                    <span class="signature-icon">💼</span>
+                    <span class="signature-text">Souza Produções</span>
+                    <span class="signature-badge">WhatsApp</span>
+                </a>
+            </div>
+            <div class="system-status">
+                <span class="status-dot"></span>
+                <span>Sistema online e seguro</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Script de lógica -->
+    <script src="index.js"></script>
+</body>
+</html>
