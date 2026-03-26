@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isis Ai Agent — Enterprise CRM</title>
+    <!-- Certifique-se que o arquivo CSS se chama dashboard.css -->
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="premium-theme">
     <div class="app-shell">
-        <!-- BARRA LATERAL -->
+        <!-- BARRA LATERAL (SIDEBAR) -->
         <aside class="sidebar">
             <div class="sidebar-brand">⚡ Isis Ai Agent</div>
             
@@ -22,15 +23,30 @@
             </div>
 
             <nav class="side-nav">
-                <button class="nav-btn active" id="btn-dashboard" onclick="switchTab('dashboard')"><span>📊</span> Dashboard</button>
-                <button class="nav-btn" id="btn-leads" onclick="switchTab('leads')"><span>👥</span> Todos os Leads</button>
-                <button class="nav-btn" id="btn-pipeline" onclick="switchTab('pipeline')"><span>📈</span> Pipeline (Kanban)</button>
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
-                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer; text-align:left;"><span>📥</span> Exportar Backup</button>
+                <button class="nav-btn active" id="btn-dashboard" onclick="switchTab('dashboard')">
+                    <span>📊</span> Dashboard
+                </button>
+                <button class="nav-btn" id="btn-leads" onclick="switchTab('leads')">
+                    <span>👥</span> Todos os Leads
+                </button>
+                <button class="nav-btn" id="btn-pipeline" onclick="switchTab('pipeline')">
+                    <span>📈</span> Pipeline (Kanban)
+                </button>
+                <button class="nav-btn" id="btn-config" onclick="switchTab('config')">
+                    <span>🔌</span> Integrações
+                </button>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+                
+                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer; text-align:left;">
+                    <span>📥</span> Exportar Backup
+                </button>
             </nav>
 
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:#f87171; cursor:pointer;">🚪 Sair do Sistema</button>
+                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:#f87171; cursor:pointer; display:flex; align-items:center; gap:10px; font-size:14px;">
+                    <span>🚪</span> Sair do Sistema
+                </button>
             </div>
         </aside>
 
@@ -40,8 +56,11 @@
             <!-- ABA 1: DASHBOARD -->
             <section id="tab-dashboard" class="content-tab active">
                 <header class="content-header">
-                    <h1>Visão Geral</h1>
-                    <p id="lastUpdateTime" style="font-size:12px; color:var(--text-muted)">Sincronizado</p>
+                    <div>
+                        <h1>Visão Geral</h1>
+                        <p id="lastUpdateTime" style="font-size:12px; color:var(--text-muted)">Dados sincronizados com a nuvem</p>
+                    </div>
+                    <button class="refresh-circle" onclick="loadLeads()" title="Atualizar">🔄</button>
                 </header>
                 
                 <section class="metrics-grid">
@@ -64,18 +83,21 @@
                 </section>
 
                 <div class="work-area">
+                    <!-- Lista Lateral -->
                     <div class="list-container">
                         <div class="container-head">
-                            <h3>Contatos (<span id="countCurrent">0</span>)</h3>
+                            <h3>Atividade Recente (<span id="countCurrent">0</span>)</h3>
                         </div>
                         <div id="leadsList" class="scrollable-list">
-                            <!-- Lista de leads JS -->
+                            <!-- Injetado via JS -->
                         </div>
                     </div>
+                    
+                    <!-- Painel de Detalhes -->
                     <div id="detailPanel" class="details-container">
                         <div class="empty-view">
                             <div class="empty-icon">📂</div>
-                            <p>Selecione um contato para gerenciar</p>
+                            <p>Selecione um contato para gerenciar e usar a IA</p>
                         </div>
                     </div>
                 </div>
@@ -84,8 +106,8 @@
             <!-- ABA 2: LISTA COMPLETA (TABELA) -->
             <section id="tab-leads" class="content-tab">
                 <header class="content-header">
-                    <h1>Gestão Total</h1>
-                    <input type="text" id="searchLeads" placeholder="Buscar lead..." onkeyup="filterLeadsTable()">
+                    <h1>Gestão Total de Leads</h1>
+                    <input type="text" id="searchLeads" placeholder="Buscar por nome ou celular..." onkeyup="filterLeadsTable()">
                 </header>
                 <div class="table-frame">
                     <table class="premium-table">
@@ -94,7 +116,7 @@
                                 <th>Nome</th>
                                 <th>WhatsApp</th>
                                 <th>Status</th>
-                                <th>Digital SP</th>
+                                <th>Assinatura Digital</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -124,9 +146,48 @@
                 </div>
             </section>
 
+            <!-- ABA 4: INTEGRAÇÕES (WEBHOOK) -->
+            <section id="tab-config" class="content-tab">
+                <header class="content-header">
+                    <h1>Conexões e Webhooks</h1>
+                </header>
+                <div class="m-card" style="max-width: 650px; padding: 30px;">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+                        <span style="font-size:30px;">🔌</span>
+                        <div>
+                            <h3 style="margin:0;">Sincronização Automática</h3>
+                            <p style="color:var(--text-muted); font-size:14px; margin-top:5px;">Conecte seu Typebot, Landing Page ou Facebook Ads.</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:15px; border:1px solid var(--border);">
+                        <label style="font-size: 11px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Sua URL de Webhook Exclusiva</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <input type="text" id="webhookUrl" readonly value="Gerando link..." 
+                                   style="flex:1; background: var(--bg-deep); border: 1px solid var(--border); color: #10b981; padding: 14px; border-radius: 10px; font-family: monospace; font-size: 13px; outline: none;">
+                            <button onclick="copyWebhook()" style="background: var(--accent); color: white; border:none; padding: 0 25px; border-radius: 10px; cursor: pointer; font-weight:bold; transition:0.2s;">
+                                Copiar
+                            </button>
+                        </div>
+                        <p style="margin-top:15px; font-size:12px; color:var(--text-muted);">
+                            ℹ️ Envie um JSON via POST com os campos: <strong>name, phone, email, interesse</strong>.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
+
+    <!-- Rodapé de Assinatura -->
+    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 999; font-size: 11px; color: var(--text-muted);">
+        Propriedade Intelectual: 
+        <a href="https://wa.me/5562991444852" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:bold;">Souza Produções</a>
+    </div>
+
     <div id="toastContainer"></div>
+    
+    <!-- Script de Lógica -->
     <script src="dashboard.js"></script>
 </body>
 </html>
