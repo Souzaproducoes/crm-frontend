@@ -1,7 +1,7 @@
 // ============================================
 // ISIS AI AGENT CRM - DASHBOARD COMPLETO
 // ============================================
-const API_URL = 'https://crm-api-gules.vercel.app';
+const API_URL = 'https://crm-api-isisaiagent.vercel.app';
 
 // Estado global
 let leads = [];
