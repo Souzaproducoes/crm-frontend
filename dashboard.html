@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISIS AI Agent - Dashboard Premium</title>
+    <title>Isis Ai Agent — Dashboard</title>
+    <!-- Certifique-se de que o nome do arquivo CSS seja exatamente este -->
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="premium-theme">
     <div class="app-shell">
-        <!-- Sidebar Fixa -->
+        <!-- BARRA LATERAL (SIDEBAR) -->
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <span class="brand-icon">⚡</span>
-                <span class="brand-name">ISIS AI Agent</span>
+                <span class="brand-name">Isis Ai Agent</span>
             </div>
 
+            <!-- Card de Contexto da Empresa -->
             <div class="user-context">
-                <div class="user-avatar">SP</div>
+                <div class="user-avatar">AI</div>
                 <div class="user-info">
                     <p id="companyName" class="company-title">Carregando...</p>
                     <span id="companyPlan" class="plan-badge">FREE</span>
                 </div>
             </div>
 
+            <!-- Menu de Navegação -->
             <nav class="side-nav">
                 <a href="#" class="nav-btn active"><span>📊</span> Dashboard</a>
                 <a href="#" class="nav-btn"><span>👥</span> Leads</a>
@@ -31,24 +34,27 @@
                 <a href="#" class="nav-btn"><span>⚙️</span> Configurações</a>
             </nav>
 
+            <!-- Rodapé da Sidebar -->
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link"><span>🚪</span> Sair do Sistema</button>
+                <button onclick="logout()" class="logout-link">
+                    <span>🚪</span> Sair do Sistema
+                </button>
             </div>
         </aside>
 
-        <!-- Área de Conteúdo que ocupa o resto da tela -->
+        <!-- ÁREA PRINCIPAL DE CONTEÚDO -->
         <main class="main-viewport">
             <header class="content-header">
                 <div class="header-titles">
                     <h1>Painel de Controle</h1>
-                    <p id="lastUpdateTime">Atualizado agora</p>
+                    <p id="lastUpdateTime">Sincronizando dados...</p>
                 </div>
                 <div class="header-actions">
-                    <button class="refresh-circle" onclick="loadLeads()" title="Atualizar dados">🔄</button>
+                    <button class="refresh-circle" onclick="loadLeads()" title="Atualizar agora">🔄</button>
                 </div>
             </header>
 
-            <!-- Cards Superiores -->
+            <!-- CARDS DE MÉTRICAS (SUPERIORES) -->
             <section class="metrics-grid">
                 <div class="m-card">
                     <p>Total Leads</p>
@@ -68,33 +74,41 @@
                 </div>
             </section>
 
-            <!-- Grid de Trabalho (Split View) -->
+            <!-- ÁREA DE TRABALHO (SPLIT VIEW) -->
             <section class="work-area">
-                <!-- Coluna da Esquerda: Lista -->
+                
+                <!-- Coluna Esquerda: Lista de Leads -->
                 <div class="list-container">
                     <div class="container-head">
-                        <h3>Lista de Contatos</h3>
+                        <h3>Contatos Recentes</h3>
                         <div class="tab-filters">
-                            <button class="filter-btn active" data-filter="all">Todos (<span id="countAll">0</span>)</button>
+                            <span class="filter-count">Total: <span id="countAll">0</span></span>
                         </div>
                     </div>
                     <div id="leadsList" class="scrollable-list">
-                        <!-- Leads aqui -->
+                        <!-- Os leads serão inseridos aqui pelo dashboard.js -->
+                        <div class="empty-view">
+                            <p>Carregando leads...</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Coluna da Direita: Detalhes -->
+                <!-- Coluna Direita: Painel de Detalhes -->
                 <div id="detailPanel" class="details-container">
                     <div class="empty-view">
-                        <div class="empty-icon">📂</div>
-                        <p>Selecione um lead para gerenciar</p>
+                        <div class="empty-icon">📁</div>
+                        <p>Selecione um lead para gerenciar os detalhes</p>
                     </div>
                 </div>
+
             </section>
         </main>
     </div>
 
+    <!-- Container para notificações (Toasts) -->
     <div id="toastContainer" class="toast-stack"></div>
+
+    <!-- Script de lógica do Dashboard -->
     <script src="dashboard.js"></script>
 </body>
 </html>
