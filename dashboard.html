@@ -3,185 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — ISIS AI Agent CRM</title>
+    <title>ISIS AI Agent - Premium CRM</title>
     <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-icon">⚡</span>
-                    <h1>ISIS AI Agent CRM</h1>
-                </div>
-                <div class="company-info">
-                    <div class="company-name" id="companyName">Carregando...</div>
-                    <div class="company-plan">
-                        <span class="plan-badge" id="companyPlan">Free</span>
-                    </div>
-                </div>
+            <div class="logo">⚡ ISIS AI AGENT</div>
+            
+            <div class="company-info" style="margin-bottom: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+                <p id="companyName" style="font-weight: 600;"></p>
+                <span id="companyPlan" class="badge" style="font-size: 10px; background: var(--primary); padding: 2px 8px; border-radius: 5px;"></span>
             </div>
 
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <span class="nav-icon">📊</span>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">💬</span>
-                            <span>Leads</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">📈</span>
-                            <span>Pipeline</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">⚙️</span>
-                            <span>Configurações</span>
-                        </a>
-                    </li>
-                </ul>
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active">📊 Dashboard</a>
+                <a href="#" class="nav-link">👥 Leads</a>
+                <a href="#" class="nav-link">📈 Pipeline</a>
+                <a href="#" class="nav-link">⚙️ Configurações</a>
             </nav>
 
-            <div class="sidebar-footer">
-                <button class="logout-btn" onclick="logout()">
-                    <span class="nav-icon">🚪</span>
-                    <span>Sair</span>
-                </button>
-            </div>
+            <footer class="sidebar-footer">
+                <button onclick="logout()" class="logout-btn" style="width: 100%; padding: 12px; background: #ef444422; color: #ef4444; border: 1px solid #ef444444; border-radius: 10px; cursor: pointer;">Sair</button>
+            </footer>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Main -->
         <main class="main-content">
-            <!-- Header -->
             <header class="dashboard-header">
-                <div class="dashboard-title">
-                    <h2>Dashboard</h2>
-                    <p>Visão geral dos seus leads</p>
+                <div>
+                    <h1>Bem-vindo ao Painel</h1>
+                    <p id="lastUpdateTime" style="color: var(--text-dim); font-size: 13px;">Atualizado agora</p>
                 </div>
-                <div class="header-actions">
-                    <button class="btn-refresh" onclick="loadLeads()" title="Atualizar">
-                        🔄
-                    </button>
-                    <span class="last-update" id="lastUpdateTime">Atualizado agora</span>
-                </div>
+                <button class="btn-refresh" onclick="loadLeads()" style="background: var(--bg-card); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer;">🔄 Atualizar</button>
             </header>
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
+            <!-- Stats -->
+            <section class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="statTotal">0</div>
-                        <div class="stat-label">Total de Leads</div>
-                    </div>
+                    <p class="stat-label">Total Leads</p>
+                    <h2 id="statTotal" class="stat-value">0</h2>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🔵</div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="statNovos">0</div>
-                        <div class="stat-label">Novos</div>
-                    </div>
+                    <p class="stat-label">Novos</p>
+                    <h2 id="statNovos" class="stat-value">0</h2>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🟡</div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="statAtendimento">0</div>
-                        <div class="stat-label">Em Atendimento</div>
-                    </div>
+                    <p class="stat-label">Em Atendimento</p>
+                    <h2 id="statAtendimento" class="stat-value">0</h2>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🟢</div>
-                    <div class="stat-content">
-                        <div class="stat-value" id="statConvertidos">0</div>
-                        <div class="stat-label">Convertidos</div>
-                    </div>
+                    <p class="stat-label">Convertidos</p>
+                    <h2 id="statConvertidos" class="stat-value">0</h2>
                 </div>
-            </div>
+            </section>
 
-            <!-- Filters -->
-            <div class="filters-section">
-                <div class="filter-tabs">
-                    <button class="filter-btn active" data-filter="all">
-                        📋 Todos
-                        <span class="filter-count" id="countAll">0</span>
-                    </button>
-                    <button class="filter-btn" data-filter="novo">
-                        🔵 Novos
-                        <span class="filter-count" id="countNovo">0</span>
-                    </button>
-                    <button class="filter-btn" data-filter="em_atendimento">
-                        🟡 Em Atendimento
-                        <span class="filter-count" id="countAtendimento">0</span>
-                    </button>
-                    <button class="filter-btn" data-filter="convertido">
-                        🟢 Convertidos
-                        <span class="filter-count" id="countConvertido">0</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Leads Content -->
-            <div class="leads-content">
-                <!-- Leads List -->
-                <div class="leads-panel">
+            <!-- Grid de Conteúdo -->
+            <section class="content-grid">
+                <div class="panel">
                     <div class="panel-header">
-                        <h3>💬 Leads</h3>
-                        <span class="panel-count" id="leadsCount">0</span>
+                        <h3>Lista de Leads</h3>
+                        <span id="countAll" style="font-size: 12px; opacity: 0.6;">0</span>
                     </div>
-                    <div class="leads-list" id="leadsList">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">⏳</div>
-                            <div class="empty-state-title">Carregando leads...</div>
-                        </div>
+                    <div id="leadsList" class="leads-list">
+                        <!-- Gerado via JS -->
                     </div>
                 </div>
 
-                <!-- Detail Panel -->
-                <div class="detail-panel" id="detailPanel">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👆</div>
-                        <div class="empty-state-title">Selecione um lead</div>
-                        <div class="empty-state-text">
-                            Clique em um lead na lista para ver o histórico de mensagens e detalhes
-                        </div>
+                <div class="panel" id="detailPanel">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-dim);">
+                        Selecione um lead para ver os detalhes
                     </div>
                 </div>
-            </div>
-
-            <!-- Toast Container -->
-            <div id="toastContainer" class="toast-container"></div>
-
-            <!-- Footer com Assinatura -->
-            <footer class="dashboard-footer">
-                <div class="footer-content">
-                    <p class="footer-text">© 2026 ISIS AI Agent CRM. Todos os direitos reservados.</p>
-                    <div class="footer-signature">
-                        <span class="footer-label">Desenvolvido por </span>
-                        <a href="https://wa.me/5562991444852" target="_blank" class="signature-link" title="Falar no WhatsApp">
-                            <span class="signature-icon">💼</span>
-                            <span class="signature-text">Souza Produções</span>
-                            <span class="signature-badge">WhatsApp</span>
-                        </a>
-                    </div>
-                    <div class="system-status">
-                        <span class="status-dot"></span>
-                        <span>Sistema online</span>
-                    </div>
-                </div>
-            </footer>
+            </section>
         </main>
     </div>
-
+    
+    <div id="toastContainer"></div>
     <script src="dashboard.js"></script>
 </body>
 </html>
