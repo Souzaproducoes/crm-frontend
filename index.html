@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISIS AI Agent CRM - Login</title>
+    <!-- O link abaixo deve bater exatamente com o nome do seu arquivo CSS -->
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <header class="auth-header">
+                <div class="auth-logo">⚡</div>
+                <h1>ISIS CRM</h1>
+                <p>Automatize suas vendas com IA</p>
+            </header>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Entrar</button>
+                <button class="tab-btn" data-tab="register">Registrar</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail">E-mail ou Nome da Empresa</label>
+                    <!-- MUDANÇA CHAVE: type="text" permite "Souza Produções" sem erro -->
+                    <input 
+                        type="text" 
+                        id="loginEmail" 
+                        placeholder="seu@email.com ou Nome da Empresa" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        placeholder="••••••••" 
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <span class="btn-text">Entrar no Painel</span>
+                    <span class="btn-loading hidden">Processando...</span>
+                </button>
+
+                <div id="loginError" class="message error hidden"></div>
+            </form>
+
+            <!-- Formulário de Registro -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerCompany">Nome da Empresa *</label>
+                    <input type="text" id="registerCompany" placeholder="Ex: Souza Produções" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">E-mail Profissional *</label>
+                    <input type="email" id="registerEmail" placeholder="contato@empresa.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPhone">Telefone / WhatsApp</label>
+                    <input type="tel" id="registerPhone" placeholder="(62) 99999-9999">
+                </div>
+
+                <div class="form-group">
+                    <label for="registerIndustry">Tipo de Negócio</label>
+                    <select id="registerIndustry">
+                        <option value="Outro">Selecione...</option>
+                        <option value="Serviços">Prestação de Serviços</option>
+                        <option value="Varejo">Varejo</option>
+                        <option value="Tecnologia">Tecnologia</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Senha *</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirm">Confirmar Senha *</label>
+                    <input type="password" id="registerConfirm" placeholder="Repita a senha" required>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="acceptTerms" required>
+                    <label for="acceptTerms">Aceito os Termos de Uso</label>
+                </div>
+
+                <button type="submit" class="btn-primary" id="registerBtn">
+                    <span class="btn-text">Criar Minha Conta</span>
+                    <span class="btn-loading hidden">Criando...</span>
+                </button>
+
+                <div id="registerError" class="message error hidden"></div>
+                <div id="registerSuccess" class="message success hidden"></div>
+            </form>
+
+            <footer class="auth-footer">
+                <p>Desenvolvido por <strong>Souza Produções</strong></p>
+                <div class="system-status">
+                    <span class="status-dot"></span> Sistema Online
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
