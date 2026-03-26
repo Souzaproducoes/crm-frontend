@@ -1,6 +1,7 @@
 const API_URL = 'https://crm-api-isisaiagent.vercel.app';
 let leads = [];
 let selectedLead = null;
+let currentFilter = 'all';
 
 const token = localStorage.getItem('crm_token');
 const companyData = JSON.parse(localStorage.getItem('crm_company') || '{}');
@@ -22,99 +23,97 @@ async function loadLeads() {
         const data = await res.json();
         leads = data.leads || [];
         renderAll();
-    } catch (err) { console.error("Erro ao carregar:", err); }
+    } catch (err) { console.error(err); }
 }
 
-function switchTab(tabId, btn) {
-    // Esconde todas as abas
-    document.querySelectorAll('.content-tab').forEach(t => t.style.display = 'none');
+// Navegação entre abas
+function switchTab(tabId) {
+    document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     
-    // Mostra a aba clicada
-    const target = document.getElementById(`tab-${tabId}`);
-    if (target) target.style.display = 'flex';
-    btn.classList.add('active');
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+    document.getElementById(`btn-${tabId}`).classList.add('active');
+}
+
+// Filtro por clique nos cards
+function setFilter(filter) {
+    currentFilter = filter;
+    switchTab('dashboard'); // Garante que volta pro dash ao filtrar
+    renderAll();
 }
 
 function renderAll() {
-    // Atualizar Contadores
+    // 1. Atualizar Stats
     document.getElementById('statTotal').textContent = leads.length;
     document.getElementById('statNovos').textContent = leads.filter(l => l.status === 'novo').length;
     document.getElementById('statAtendimento').textContent = leads.filter(l => l.status === 'em_atendimento').length;
     document.getElementById('statConvertidos').textContent = leads.filter(l => l.status === 'convertido').length;
 
-    // Renderizar Lista Lateral (Dashboard)
-    document.getElementById('leadsList').innerHTML = leads.map(l => `
+    // 2. Renderizar Dashboard (Filtra baseado no currentFilter)
+    const filteredLeads = currentFilter === 'all' ? leads : leads.filter(l => l.status === currentFilter);
+    document.getElementById('countCurrent').textContent = filteredLeads.length;
+    
+    document.getElementById('leadsList').innerHTML = filteredLeads.map(l => `
         <div class="lead-card ${selectedLead?.id === l.id ? 'selected' : ''}" onclick="selectLead(${l.id})">
             <strong>👤 ${l.name}</strong>
             <span>📞 ${l.phone}</span>
         </div>
     `).join('');
 
-    // Renderizar Tabela (Aba Leads)
+    // 3. Renderizar Tabela (Aba Leads)
     document.getElementById('tableBody').innerHTML = leads.map(l => `
         <tr>
             <td>${l.name}</td>
             <td>${l.phone}</td>
             <td><span class="plan-badge">${l.status}</span></td>
-            <td style="font-family: monospace; color: #10b981;">${l.signature_key || 'GERANDO...'}</td>
-            <td><button class="refresh-circle" onclick="selectLead(${l.id})">👁️</button></td>
+            <td style="font-family:monospace; color:#10b981">${l.signature_key || 'ORIGINAL'}</td>
+            <td><button onclick="selectLead(${l.id})" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer">Ver</button></td>
         </tr>
     `).join('');
 
-    // Renderizar Kanban
-    const colNovo = document.getElementById('col-novo');
-    const colAtend = document.getElementById('col-atendimento');
-    const colConv = document.getElementById('col-convertido');
-    
-    colNovo.innerHTML = ""; colAtend.innerHTML = ""; colConv.innerHTML = "";
-
+    // 4. Renderizar Kanban
+    const cols = {
+        'novo': document.getElementById('col-novo'),
+        'em_atendimento': document.getElementById('col-atendimento'),
+        'convertido': document.getElementById('col-convertido')
+    };
+    Object.values(cols).forEach(c => c.innerHTML = "");
     leads.forEach(l => {
-        const card = `<div class="kanban-card" onclick="selectLead(${l.id})"><strong>${l.name}</strong><br><small>${l.phone}</small></div>`;
-        if (l.status === 'novo') colNovo.innerHTML += card;
-        else if (l.status === 'em_atendimento') colAtend.innerHTML += card;
-        else if (l.status === 'convertido') colConv.innerHTML += card;
+        if(cols[l.status]) {
+            cols[l.status].innerHTML += `<div class="kanban-card" onclick="selectLead(${l.id})"><strong>${l.name}</strong><br><small>${l.phone}</small></div>`;
+        }
     });
 }
 
 function selectLead(id) {
     selectedLead = leads.find(l => l.id === id);
-    switchTab('dashboard', document.querySelector('.nav-btn')); // Volta pro dash para ver detalhes
+    switchTab('dashboard');
+    renderAll();
     
     document.getElementById('detailPanel').innerHTML = `
         <div style="padding:30px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                <div>
-                    <h2 style="margin:0;">${selectedLead.name}</h2>
-                    <p style="color:var(--text-muted);">${selectedLead.phone}</p>
-                </div>
-                <div style="text-align:right;">
-                    <span style="font-size:10px; color:var(--text-muted);">ID DE VERIFICAÇÃO (DIGITAL)</span>
-                    <div style="font-family:monospace; color:#10b981; font-weight:bold; background:#10b98111; padding:5px 10px; border-radius:5px; border:1px solid #10b98133;">
-                        ${selectedLead.signature_key || 'ORIGINAL'}
-                    </div>
-                </div>
+            <div style="display:flex; justify-content:space-between;">
+                <h2>${selectedLead.name}</h2>
+                <div style="text-align:right"><small>DIGITAL SP</small><br><strong style="color:#10b981">${selectedLead.signature_key || 'VALIDA'}</strong></div>
             </div>
-
+            <p>${selectedLead.phone}</p>
             <div style="background:#00000033; padding:20px; border-radius:15px; margin:20px 0;">
-                <label style="color:#6366f1; font-size:11px; font-weight:bold;">HISTÓRICO DO LEAD</label>
-                <p style="margin-top:10px; line-height:1.6;">${selectedLead.interesse || 'Nenhum interesse registrado.'}</p>
+                <p>${selectedLead.interesse || 'Sem observações.'}</p>
             </div>
-
             <div style="display:flex; gap:10px;">
-                <a href="https://wa.me/${selectedLead.phone}" target="_blank" style="flex:2; background:#25d366; color:white; text-align:center; padding:15px; border-radius:12px; text-decoration:none; font-weight:bold;">Chamar no WhatsApp</a>
-                <select onchange="updateStatus(${selectedLead.id}, this.value)" style="flex:1; background:var(--sidebar); color:white; border-radius:12px; border:1px solid var(--border); padding:10px;">
-                    <option value="">Mudar Status</option>
+                <a href="https://wa.me/${selectedLead.phone}" target="_blank" style="flex:2; background:#25d366; color:white; text-align:center; padding:15px; border-radius:12px; text-decoration:none; font-weight:bold;">WhatsApp</a>
+                <select onchange="updateStatus(${selectedLead.id}, this.value)" style="flex:1; background:var(--sidebar); color:white; border-radius:12px; padding:10px;">
+                    <option value="">Status</option>
                     <option value="novo">Novo</option>
-                    <option value="em_atendimento">Em Atendimento</option>
-                    <option value="convertido">Fechado/Ganho</option>
+                    <option value="em_atendimento">Aberto</option>
+                    <option value="convertido">Ganho</option>
                 </select>
             </div>
         </div>`;
 }
 
 async function updateStatus(id, status) {
-    if (!status) return;
+    if(!status) return;
     await fetch(`${API_URL}/api/leads`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
