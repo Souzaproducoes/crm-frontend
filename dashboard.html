@@ -11,15 +11,13 @@
     <div class="app-shell">
         <aside class="sidebar">
             <div class="sidebar-brand">⚡ Isis Ai Agent</div>
-            
             <div class="user-context">
                 <div class="user-avatar">SP</div>
                 <div class="user-info">
-                    <p id="companyName" class="company-title">Souza Produções</p>
+                    <p id="companyName" class="company-title">...</p>
                     <span id="companyPlan" class="plan-badge">PRO PLAN</span>
                 </div>
             </div>
-
             <nav class="side-nav">
                 <button class="nav-btn active" id="btn-dashboard" onclick="switchTab('dashboard')"><span>📊</span> Dashboard</button>
                 <button class="nav-btn" id="btn-leads" onclick="switchTab('leads')"><span>👥</span> Todos os Leads</button>
@@ -28,54 +26,44 @@
                 <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
                 <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer; text-align:left;"><span>📥</span> Exportar Backup</button>
             </nav>
-
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:14px;">🚪 Sair do Sistema</button>
+                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:#f87171; cursor:pointer;">🚪 Sair do Sistema</button>
             </div>
         </aside>
 
         <main class="main-viewport">
-            
-            <!-- TAB DASHBOARD -->
+            <!-- DASHBOARD -->
             <section id="tab-dashboard" class="content-tab active">
                 <header class="content-header">
                     <h1>Visão Geral</h1>
-                    <button class="refresh-circle" onclick="loadLeads()">🔄</button>
                 </header>
-                
                 <section class="metrics-grid">
                     <div class="m-card" onclick="setFilter('all')" style="cursor:pointer"><p>Total</p><h2 id="statTotal">0</h2></div>
                     <div class="m-card" onclick="setFilter('novo')" style="cursor:pointer"><p>Novos</p><h2 id="statNovos" style="color:#60a5fa">0</h2></div>
                     <div class="m-card" onclick="setFilter('em_atendimento')" style="cursor:pointer"><p>Em Aberto</p><h2 id="statAtendimento" style="color:#fbbf24">0</h2></div>
                     <div class="m-card" onclick="setFilter('convertido')" style="cursor:pointer"><p>Ganhos</p><h2 id="statConvertidos" style="color:#34d399">0</h2></div>
                 </section>
-
                 <div class="work-area">
                     <div class="list-container">
                         <div class="container-head"><h3>Atividade Recente (<span id="countCurrent">0</span>)</h3></div>
                         <div id="leadsList" class="scrollable-list"></div>
                     </div>
                     <div id="detailPanel" class="details-container">
-                        <div class="empty-view"><p>Selecione um contato</p></div>
+                        <div class="empty-view">
+                            <div class="empty-icon">📂</div>
+                            <p>Selecione um contato para gerenciar</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB LEADS (TABELA) -->
+            <!-- TABELA -->
             <section id="tab-leads" class="content-tab">
-                <header class="content-header">
-                    <h1>Gestão de Leads</h1>
-                    <input type="text" id="searchLeads" placeholder="Buscar..." onkeyup="filterLeadsTable()" style="background:var(--sidebar); border:1px solid var(--border); color:white; padding:10px 20px; border-radius:10px; width:300px;">
-                </header>
-                <div class="table-frame">
-                    <table class="premium-table">
-                        <thead><tr><th>Nome</th><th>WhatsApp</th><th>Status</th><th>Digital</th><th>Ações</th></tr></thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
+                <header class="content-header"><h1>Gestão de Leads</h1><input type="text" id="searchLeads" placeholder="Buscar..." onkeyup="filterLeadsTable()"></header>
+                <div class="table-frame"><table class="premium-table"><thead><tr><th>Nome</th><th>WhatsApp</th><th>Status</th><th>Digital</th><th>Ações</th></tr></thead><tbody id="tableBody"></tbody></table></div>
             </section>
 
-            <!-- TAB PIPELINE (KANBAN) -->
+            <!-- KANBAN -->
             <section id="tab-pipeline" class="content-tab">
                 <header class="content-header"><h1>Funil de Vendas</h1></header>
                 <div class="kanban-board">
@@ -85,20 +73,17 @@
                 </div>
             </section>
 
-            <!-- TAB CONFIG (WEBHOOK) -->
+            <!-- WEBHOOK -->
             <section id="tab-config" class="content-tab">
                 <header class="content-header"><h1>Integrações</h1></header>
                 <div class="m-card" style="max-width: 600px; padding:30px;">
-                    <h3>Webhook de Entrada</h3>
-                    <p style="margin:15px 0; color:var(--text-muted); font-size:14px;">Conecte seu Typebot aqui:</p>
+                    <h3>Webhook de Entrada</h3><p style="margin:15px 0; color:var(--text-muted);">Copie a URL abaixo:</p>
                     <input type="text" id="webhookUrl" readonly style="width:100%; background:var(--bg-deep); border:1px solid var(--border); color:#10b981; padding:15px; border-radius:10px; font-family:monospace; margin-bottom:10px;">
                     <button onclick="copyWebhook()" style="background:var(--accent); color:white; border:none; padding:12px 25px; border-radius:10px; cursor:pointer; font-weight:bold;">Copiar Link</button>
                 </div>
             </section>
-
         </main>
     </div>
-    <div style="position:fixed; bottom:20px; left:20px; font-size:11px; color:var(--text-muted);">Propriedade Intelectual: <a href="https://wa.me/5562991444852" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:bold;">Souza Produções</a></div>
     <script src="dashboard.js"></script>
 </body>
 </html>
