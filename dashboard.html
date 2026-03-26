@@ -2,113 +2,55 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isis Ai Agent — Dashboard</title>
-    <!-- Certifique-se de que o nome do arquivo CSS seja exatamente este -->
     <link rel="stylesheet" href="dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="premium-theme">
     <div class="app-shell">
-        <!-- BARRA LATERAL (SIDEBAR) -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <span class="brand-icon">⚡</span>
-                <span class="brand-name">Isis Ai Agent</span>
-            </div>
-
-            <!-- Card de Contexto da Empresa -->
+            <div class="sidebar-brand">⚡ Isis Ai Agent</div>
             <div class="user-context">
                 <div class="user-avatar">AI</div>
                 <div class="user-info">
-                    <p id="companyName" class="company-title">Carregando...</p>
+                    <p id="companyName" class="company-title">...</p>
                     <span id="companyPlan" class="plan-badge">FREE</span>
                 </div>
             </div>
-
-            <!-- Menu de Navegação -->
             <nav class="side-nav">
-                <a href="#" class="nav-btn active"><span>📊</span> Dashboard</a>
-                <a href="#" class="nav-btn"><span>👥</span> Leads</a>
-                <a href="#" class="nav-btn"><span>📈</span> Pipeline</a>
-                <a href="#" class="nav-btn"><span>⚙️</span> Configurações</a>
+                <a href="#" class="nav-btn active">📊 Dashboard</a>
+                <a href="#" class="nav-btn">👥 Leads</a>
+                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer;">📥 Exportar Backup</button>
             </nav>
-
-            <!-- Rodapé da Sidebar -->
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link">
-                    <span>🚪</span> Sair do Sistema
-                </button>
+                <button onclick="logout()" class="logout-link">🚪 Sair</button>
             </div>
         </aside>
 
-        <!-- ÁREA PRINCIPAL DE CONTEÚDO -->
         <main class="main-viewport">
             <header class="content-header">
-                <div class="header-titles">
-                    <h1>Painel de Controle</h1>
-                    <p id="lastUpdateTime">Sincronizando dados...</p>
-                </div>
-                <div class="header-actions">
-                    <button class="refresh-circle" onclick="loadLeads()" title="Atualizar agora">🔄</button>
-                </div>
+                <h1>Painel de Controle</h1>
+                <button class="refresh-circle" onclick="loadLeads()">🔄</button>
             </header>
 
-            <!-- CARDS DE MÉTRICAS (SUPERIORES) -->
             <section class="metrics-grid">
-                <div class="m-card">
-                    <p>Total Leads</p>
-                    <h2 id="statTotal">0</h2>
-                </div>
-                <div class="m-card">
-                    <p>Novos</p>
-                    <h2 id="statNovos" class="stat-blue">0</h2>
-                </div>
-                <div class="m-card">
-                    <p>Em Atendimento</p>
-                    <h2 id="statAtendimento" class="stat-yellow">0</h2>
-                </div>
-                <div class="m-card">
-                    <p>Convertidos</p>
-                    <h2 id="statConvertidos" class="stat-green">0</h2>
-                </div>
+                <div class="m-card"><p>Total</p><h2 id="statTotal">0</h2></div>
+                <div class="m-card"><p>Novos</p><h2 id="statNovos" style="color:#60a5fa">0</h2></div>
+                <div class="m-card"><p>Atendimento</p><h2 id="statAtendimento" style="color:#fbbf24">0</h2></div>
+                <div class="m-card"><p>Convertidos</p><h2 id="statConvertidos" style="color:#34d399">0</h2></div>
             </section>
 
-            <!-- ÁREA DE TRABALHO (SPLIT VIEW) -->
             <section class="work-area">
-                
-                <!-- Coluna Esquerda: Lista de Leads -->
                 <div class="list-container">
-                    <div class="container-head">
-                        <h3>Contatos Recentes</h3>
-                        <div class="tab-filters">
-                            <span class="filter-count">Total: <span id="countAll">0</span></span>
-                        </div>
-                    </div>
-                    <div id="leadsList" class="scrollable-list">
-                        <!-- Os leads serão inseridos aqui pelo dashboard.js -->
-                        <div class="empty-view">
-                            <p>Carregando leads...</p>
-                        </div>
-                    </div>
+                    <div class="container-head"><h3>Contatos (<span id="countAll">0</span>)</h3></div>
+                    <div id="leadsList" class="scrollable-list"></div>
                 </div>
-
-                <!-- Coluna Direita: Painel de Detalhes -->
                 <div id="detailPanel" class="details-container">
-                    <div class="empty-view">
-                        <div class="empty-icon">📁</div>
-                        <p>Selecione um lead para gerenciar os detalhes</p>
-                    </div>
+                    <div class="empty-view"><p>Selecione um lead</p></div>
                 </div>
-
             </section>
         </main>
     </div>
-
-    <!-- Container para notificações (Toasts) -->
-    <div id="toastContainer" class="toast-stack"></div>
-
-    <!-- Script de lógica do Dashboard -->
     <script src="dashboard.js"></script>
 </body>
 </html>
