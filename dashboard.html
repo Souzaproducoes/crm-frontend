@@ -2,14 +2,17 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isis Ai Agent — Enterprise CRM</title>
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="premium-theme">
     <div class="app-shell">
+        <!-- BARRA LATERAL -->
         <aside class="sidebar">
             <div class="sidebar-brand">⚡ Isis Ai Agent</div>
+            
             <div class="user-context">
                 <div class="user-avatar">SP</div>
                 <div class="user-info">
@@ -17,53 +20,74 @@
                     <span id="companyPlan" class="plan-badge">PRO PLAN</span>
                 </div>
             </div>
+
             <nav class="side-nav">
                 <button class="nav-btn active" id="btn-dashboard" onclick="switchTab('dashboard')"><span>📊</span> Dashboard</button>
                 <button class="nav-btn" id="btn-leads" onclick="switchTab('leads')"><span>👥</span> Todos os Leads</button>
                 <button class="nav-btn" id="btn-pipeline" onclick="switchTab('pipeline')"><span>📈</span> Pipeline (Kanban)</button>
                 <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
-                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981;"><span>📥</span> Exportar Backup</button>
+                <button onclick="exportarDados()" class="nav-btn" style="color:#10b981; background:none; border:none; width:100%; cursor:pointer; text-align:left;"><span>📥</span> Exportar Backup</button>
             </nav>
+
             <div class="sidebar-footer">
-                <button onclick="logout()" class="logout-link">🚪 Sair do Sistema</button>
+                <button onclick="logout()" class="logout-link" style="background:none; border:none; color:#f87171; cursor:pointer;">🚪 Sair do Sistema</button>
             </div>
         </aside>
 
+        <!-- ÁREA PRINCIPAL -->
         <main class="main-viewport">
+            
             <!-- ABA 1: DASHBOARD -->
             <section id="tab-dashboard" class="content-tab active">
                 <header class="content-header">
                     <h1>Visão Geral</h1>
-                    <button class="refresh-circle" onclick="loadLeads()">🔄</button>
+                    <p id="lastUpdateTime" style="font-size:12px; color:var(--text-muted)">Sincronizado</p>
                 </header>
                 
                 <section class="metrics-grid">
-                    <div class="m-card clickable" onclick="setFilter('all')"><p>Total</p><h2 id="statTotal">0</h2></div>
-                    <div class="m-card clickable" onclick="setFilter('novo')"><p>Novos</p><h2 id="statNovos" style="color:#60a5fa">0</h2></div>
-                    <div class="m-card clickable" onclick="setFilter('em_atendimento')"><p>Em Aberto</p><h2 id="statAtendimento" style="color:#fbbf24">0</h2></div>
-                    <div class="m-card clickable" onclick="setFilter('convertido')"><p>Ganhos</p><h2 id="statConvertidos" style="color:#34d399">0</h2></div>
+                    <div class="m-card" onclick="setFilter('all')" style="cursor:pointer">
+                        <p>Total Leads</p>
+                        <h2 id="statTotal">0</h2>
+                    </div>
+                    <div class="m-card" onclick="setFilter('novo')" style="cursor:pointer">
+                        <p>Novos</p>
+                        <h2 id="statNovos" style="color:#60a5fa">0</h2>
+                    </div>
+                    <div class="m-card" onclick="setFilter('em_atendimento')" style="cursor:pointer">
+                        <p>Em Aberto</p>
+                        <h2 id="statAtendimento" style="color:#fbbf24">0</h2>
+                    </div>
+                    <div class="m-card" onclick="setFilter('convertido')" style="cursor:pointer">
+                        <p>Ganhos</p>
+                        <h2 id="statConvertidos" style="color:#34d399">0</h2>
+                    </div>
                 </section>
 
                 <div class="work-area">
                     <div class="list-container">
-                        <div class="container-head"><h3>Contatos (<span id="countCurrent">0</span>)</h3></div>
+                        <div class="container-head">
+                            <h3>Contatos (<span id="countCurrent">0</span>)</h3>
+                        </div>
                         <div id="leadsList" class="scrollable-list">
-                            <!-- JS vai preencher -->
+                            <!-- Lista de leads JS -->
                         </div>
                     </div>
                     <div id="detailPanel" class="details-container">
-                        <div class="empty-view"><div class="empty-icon">📂</div><p>Selecione um contato para gerenciar</p></div>
+                        <div class="empty-view">
+                            <div class="empty-icon">📂</div>
+                            <p>Selecione um contato para gerenciar</p>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ABA 2: LISTA COMPLETA -->
+            <!-- ABA 2: LISTA COMPLETA (TABELA) -->
             <section id="tab-leads" class="content-tab">
                 <header class="content-header">
-                    <h1>Gestão Total de Leads</h1>
-                    <input type="text" id="searchLeads" placeholder="Buscar por nome ou celular..." onkeyup="searchLeads()">
+                    <h1>Gestão Total</h1>
+                    <input type="text" id="searchLeads" placeholder="Buscar lead..." onkeyup="filterLeadsTable()">
                 </header>
-                <div class="table-container">
+                <div class="table-frame">
                     <table class="premium-table">
                         <thead>
                             <tr>
@@ -79,10 +103,10 @@
                 </div>
             </section>
 
-            <!-- ABA 3: KANBAN -->
+            <!-- ABA 3: PIPELINE (KANBAN) -->
             <section id="tab-pipeline" class="content-tab">
                 <header class="content-header">
-                    <h1>Funil de Vendas (Kanban)</h1>
+                    <h1>Funil de Vendas</h1>
                 </header>
                 <div class="kanban-board">
                     <div class="kanban-col">
@@ -99,8 +123,10 @@
                     </div>
                 </div>
             </section>
+
         </main>
     </div>
+    <div id="toastContainer"></div>
     <script src="dashboard.js"></script>
 </body>
 </html>
