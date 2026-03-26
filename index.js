@@ -2,7 +2,7 @@
 // ISIS AI AGENT CRM - LOGIN & REGISTER
 // ============================================================
 
-const API_URL = 'https://crm-api-guales.vercel.app';
+const API_URL = 'https://crm-api-isisaiagent.vercel.app';
 
 // Elementos do DOM
 const loginForm = document.getElementById('loginForm');
