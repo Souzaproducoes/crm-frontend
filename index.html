@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isis Ai Agent — Login</title>
+    <title>Isis Ai Agent — Acesso</title>
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -11,7 +11,6 @@
     <div class="login-box">
         <header class="login-header">
             <span class="logo-icon">⚡</span>
-            <!-- Nome da marca atualizado -->
             <h1>Isis Ai Agent</h1>
             <p>Seja bem-vindo de volta</p>
         </header>
@@ -21,18 +20,18 @@
             <button id="tab-register">Registrar</button>
         </div>
 
-        <!-- FORMULÁRIO DE LOGIN -->
+        <!-- LOGIN -->
         <form id="loginForm" class="auth-form active">
-            <input type="text" id="loginEmail" placeholder="E-mail ou Souza Produções" required>
+            <input type="text" id="loginEmail" placeholder="Souza Produções ou seu@email.com" required>
             <input type="password" id="loginPassword" placeholder="Sua senha master" required>
             <button type="submit" id="loginBtn">Entrar no Painel</button>
         </form>
 
-        <!-- FORMULÁRIO DE REGISTRO -->
+        <!-- REGISTRO -->
         <form id="registerForm" class="auth-form" style="display: none;">
             <input type="text" id="regCompany" placeholder="Nome da Empresa" required>
             <input type="email" id="regEmail" placeholder="E-mail profissional" required>
-            <input type="password" id="regPassword" placeholder="Crie uma senha" required minlength="6">
+            <input type="password" id="regPassword" placeholder="Senha (min. 6 caracteres)" required minlength="6">
             <button type="submit" id="regBtn">Criar Conta Grátis</button>
         </form>
         
